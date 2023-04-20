@@ -1,0 +1,57 @@
+Sql to Snowflake
+Import snowflake.connector
+from snowflake.connector.pandas_tools import write_pandas
+import pyodbc as pyo
+import pandas as pd
+cnn_sql = ( conn details
+)
+cnn = pyo.connect(cnn_sql)
+sql = "select * from tables"
+df = pd.read_sql(sql,cnn)
+cnn.close()
+
+sql = (
+"CREATE OR REPLACE Table tablename"
+"(column columntype)"
+)
+scnn = snowflake.connector.connect (
+conn details
+)
+cs = scnn.cursor()
+cs.execute(sql)
+success,nchunks,nrows, _ = write_pandas(scnn, df, 'tablename',quote)
+
+scnn.close()
+
+File to Sql Server
+# Import CSV
+data = pd.read_csv (r'C:\Users\Ron\Desktop\Test\products.csv')   
+df = pd.DataFrame(data)
+
+# Connect to SQL Server
+conn = pyodbc.connect('Driver={SQL Server};'
+                      'Server=RON\SQLEXPRESS;'
+                      'Database=test_database;'
+                      'Trusted_Connection=yes;')
+cursor = conn.cursor()
+
+# Create Table
+cursor.execute('''
+		CREATE TABLE products (
+			product_id int primary key,
+			product_name nvarchar(50),
+			price int
+			)
+               ''')
+
+# Insert DataFrame to Table
+for row in df.itertuples():
+    cursor.execute('''
+                INSERT INTO products (product_id, product_name, price)
+                VALUES (?,?,?)
+                ''',
+                row.product_id, 
+                row.product_name,
+                row.price
+                )
+conn.commit()
